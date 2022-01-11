@@ -9,7 +9,7 @@ try {
 
 node{
  stage('Checkout') {
- git 'https://github.com/sahosoft-git/DevOpsClassCodes'
+ git 'https://github.com/swagat030/addressbook.git'
 
  }
  stage('Build') {
