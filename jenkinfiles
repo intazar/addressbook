@@ -11,7 +11,7 @@ node{
  stage('Checkout') {
 Module 4 – Continuous Integration With Jenkins
 © B r a i n 4 c e E d u c a t i o n S o l u t i o n s P v t . L t d Page 3
- git 'https://github.com/sahosoft-git/DevOpsClassCodes'
+ git 'https://github.com/swagat030/addressbook.git'
 
  }
  stage('Build') {
