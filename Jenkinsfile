@@ -1,57 +1,59 @@
-#!/usr/bin/env groovy
-import hudson.model.*
-import hudson.EnvVars
-import groovy.json.JsonSlurperClassic
-import groovy.json.JsonBuilder
-import groovy.json.JsonOutput
-import java.net.URL
-try {
+pipeline {
+    agent any
 
-node{
- stage('Checkout') {
- git 'https://github.com/swagat030/addressbook.git'
+    tools {
+        echo 'Inintial Tool Installation Details'
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "my-maven"
+    }
 
- }
- stage('Build') {
- dir('') {
- sh 'mvn -B -V -U -e clean package'
- }
- }
- stage ('Email') {
- emailext attachLog: true, body: 'The status of the build can be obtained
-from the build log attached', subject: 'The build update is ', to: 'some
-email id'
-}
-stage('Deployment') {
- // Deployment
- script {
- echo "deployment"
- sh 'cp
-/var/lib/jenkins/workspace/package_1/target/addressbook.war
-/opt/tomcat/webapps/'
- }
- }
- stage('publish html report') {
- echo "publishing the html report"
- publishHTML([allowMissing: false, alwaysLinkToLastBuild:
-false, keepAll: false, reportDir: '', reportFiles: 'index.html', reportName:
-'HTML Report', reportTitles: ''])
- }
- stage('clean up') {
- echo "cleaning up the workspace"
- cleanWs()
- }
-}// node
-} // try end
-finally {
-
-
-(currentBuild.result != "ABORTED") && node("master") {
- // Send e-mail notifications for failed or unstable builds.
- // currentBuild.result must be non-null for this step to work.
- step([$class: 'Mailer',
- notifyEveryUnstableBuild: true,
- recipients: 'some email id',
- sendToIndividuals: true])
-}
+    stages {
+        stage('Source Code Checkout') {
+            steps {
+                echo 'Addressbook Project GitHub Repository Code Checkout'
+                // Get some code from a GitHub repository
+                git 'https://github.com/swagat030/addressbook.git'
+                
+            }
+        }
+        stage('Maven Compile') {
+            steps {
+                echo 'Addressbook Project Maven Compile'
+                // Run Maven on a Unix agent.
+                sh "mvn compile"
+            }
+        }
+        stage('Code Review(PMD)') {
+            steps {
+                echo 'Addressbook Project Code Review Analysis'
+                sh "mvn -P metrics pmd:pmd"
+            }
+        }
+        stage('Unit Test') {
+            steps {
+                echo 'Addressbook Project Unit Test'
+                sh "mvn test"
+                junit '**/target/surefire-reports/TEST-*.xml'
+            }
+        }
+        stage('Cobertura Coverage Report') {
+            steps {
+                echo 'Addressbook Project Cobertura Coverage Report'
+                sh 'mvn clean cobertura:cobertura -Dcobertura.report.format=xml'
+                cobertura autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: '**/target/site/cobertura/coverage.xml', conditionalCoverageTargets: '70, 0, 0', failUnhealthy: false, failUnstable: false, lineCoverageTargets: '80, 0, 0', maxNumberOfBuilds: 0, methodCoverageTargets: '80, 0, 0', onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false
+            }
+        }
+        stage('Maven Packaging') {
+            steps {
+                echo 'Addressbook Project Maven Packaging'
+                sh "mvn package"
+                archiveArtifacts 'target/*.war'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Addressbook Project Deployement Phase'
+            }
+        }
+    }
 }
