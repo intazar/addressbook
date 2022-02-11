@@ -42,4 +42,4 @@
 
 #db-[99:101]-node.example.com
 [testing]
-172.31.27.177 ansible_user=ubuntu ansible_ssh_private_key_file=~/ubuntu-keypair.pem
+172.31.27.177 ansible_user=ubuntu
