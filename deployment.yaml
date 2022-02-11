@@ -1,0 +1,20 @@
+---
+- hosts: testing
+  become: true
+  vars:
+  - src_path: /var/lib/jenkins/workspace/Addressbook-Project-CICD-Pipeline/target
+    dest_path: /var/lib/tomcat9
+  tasks:
+  - name: Install Tomcat Package
+    package: name=tomcat9 state=latest
+
+  - name: Start Tomcat service
+    service: name=tomcat9 state=started enabled=true
+
+  - name: Deploy Sample Application in Tomcat Server
+    copy: src={{ src_path }}/addressbook.war dest={{ dest_path }}/webapps
+    notify: restart tomcat
+
+  handlers:
+  - name: restart tomcat
+    service: name=tomcat9 state=restarted
