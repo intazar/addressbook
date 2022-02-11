@@ -52,7 +52,7 @@ pipeline {
        stage('Deploy with Tomcat using Ansible') {
             steps {
                 echo 'Addressbook Project Deployement with Tomcat Server using Ansible'
-                ansiblePlaybook disableHostKeyChecking: true, installation: 'my-ansible', inventory: 'hosts.inv', playbook: 'deployment.yaml'
+                ansiblePlaybook credentialsId: 'private-key' disableHostKeyChecking: true, installation: 'my-ansible', inventory: 'hosts.inv', playbook: 'deployment.yaml'
             }
         }
     }
