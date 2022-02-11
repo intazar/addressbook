@@ -11,7 +11,7 @@
   - name: Start Tomcat service
     service: name=tomcat9 state=started enabled=true
 
-  - name: Deploy addressbook Application in Tomcat Server
+  - name: Deploy Addressbook Application in Tomcat Server
     copy: src={{ src_path }}/addressbook.war dest={{ dest_path }}/webapps
     notify: restart tomcat
 
